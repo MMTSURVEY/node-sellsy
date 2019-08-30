@@ -3,6 +3,8 @@ var OAuth = require('oauth');
 import Customers from './Customers';
 import Documents from './Documents';
 
+import OAuthManager from 'react-native-oauth';
+
 const DEFAULT_ENDPOINT = 'https://apifeed.sellsy.com/0'
 
 const api = {
@@ -20,21 +22,35 @@ function Sellsy({ creds = {}, endPoint = DEFAULT_ENDPOINT  } = {}) {
 }
 
 Sellsy.prototype.api = function({ method = 'Infos.getInfos', params = {}} = {}) {
-  const getOauth = () => {
+  const getOauth = async () => {
 
-    return new OAuth.OAuth(
-      this.endPoint + api.requestTokenUrl,
-      this.endPoint + api.accessTokenUrl,
-      this.creds.consumerKey,
-      this.creds.consumerSecret,
-      '1.0',
-      null,
-      'PLAINTEXT'
-    );
+    // return new OAuth.OAuth(
+    //   this.endPoint + api.requestTokenUrl,
+    //   this.endPoint + api.accessTokenUrl,
+    //   this.creds.consumerKey,
+    //   this.creds.consumerSecret,
+    //   '1.0',
+    //   null,
+    //   'PLAINTEXT'
+    // );
 
+    const manager = new OAuthManager('sellsy')
+    manager.configure({
+        sellsy: {
+          consumer_key: this.creds.consumerKey,
+          consumer_secret: this.creds.consumerSecret,
+          user_token: this.creds.userToken,
+          user_secret: this.creds.userSecret,
+          request_url: this.endPoint + api.requestTokenUrl,
+          access_url: this.endPoint + api.accessTokenUrl
+        }
+    })
+    let result = await manager.authorize('google')
+    console.log(result)
+      return result
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const postData = {
       request: 1,
       io_mode: 'json',
@@ -44,7 +60,8 @@ Sellsy.prototype.api = function({ method = 'Infos.getInfos', params = {}} = {}) 
       })
     };
 
-    getOauth().post(
+    let auth = await getOauth()
+    auth.post(
       this.endPoint + api.url,
       this.creds.userToken,
       this.creds.userSecret,

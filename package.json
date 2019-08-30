@@ -28,7 +28,8 @@
     "tape"
   ],
   "dependencies": {
-    "oauth": "0.9.13"
+    "oauth": "0.9.13",
+    "react-native-oauth": "^2.1.18"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
